@@ -4,6 +4,22 @@ Real-time communication means data is shared between the server and the user imm
 
 Real-time communication allows an app to receive updates instantly from the server whenever something changes, without the user refreshing the page.
 
+```
+CLIENT                               SERVER
+  |                                     |
+  | ----------- CONNECT --------------> |
+  |                                     |
+  | <========== OPEN CHANNEL =========> |
+  |                                     |
+  | <----- message (real-time) -------- |
+  |                                     |
+  | ----- message (real-time) ------->  |
+  |                                     |
+  | <----- message (real-time) -------- |
+  |                                     |
+  | ====== connection stays open ====== |
+```
+
 ### In short:
 > **If something changes, the app updates on its own.**
 
@@ -147,13 +163,13 @@ You don't need real-time when:
 
 ## Implementation Real-Time Communication
 
-Here are the 3 main approaches:
+Here are the main approaches:
 
-### 1. [Long Polling](#long-polling)
+#### 1. [Long Polling](long_polling/long_polling_readme.md)
 > Simulate real-time using HTTP
 
-### 2. [Server-Sent Events](#server-sent-events)
+#### 2. [Server-Sent Events](#server-sent-events) (coming soon)
 > One-way real-time communication
 
-### 3. [WebSockets](#websockets)
+#### 3. [WebSockets](#websockets) (coming soon)
 > True two-way real-time communication
