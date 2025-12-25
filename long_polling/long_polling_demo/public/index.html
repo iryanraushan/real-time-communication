@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Tracking (Long Poling)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      font-weight: 300;
+    }
+
+    #status {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 30px 0;
+      border-left: 5px solid #3498db;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #2980b9, #1f4e79);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:nth-child(1) {
+      background: linear-gradient(45deg, #f39c12, #e67e22);
+    }
+
+    button:nth-child(1):hover {
+      background: linear-gradient(45deg, #e67e22, #d35400);
+      box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+    }
+
+    button:nth-child(2) {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+    }
+
+    button:nth-child(3) {
+      background: linear-gradient(45deg, #27ae60, #229954);
+    }
+
+    button:nth-child(3):hover {
+      background: linear-gradient(45deg, #229954, #1e8449);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      #status {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Live Order Status</h2>
+    <p id="status">Waiting...</p>
+
+    <div class="button-group">
+      <button onclick="updateStatus('Preparing')">Preparing</button>
+      <button onclick="updateStatus('Out for Delivery')">Out for Delivery</button>
+      <button onclick="updateStatus('Delivered')">Delivered</button>
+    </div>
+  </div>
+
+
+<script>
+  let lastStatus = '';
+
+  function longPoll() {
+    console.log('Initiating long poll with last status:', lastStatus);
+    fetch('http://localhost:3000/order-status?last=' + encodeURIComponent(lastStatus))
+      .then(response => response.json())
+      .then(data => {
+        if (data.status !== lastStatus) {
+          lastStatus = data.status;
+          document.getElementById('status').innerText = 'Order Status: ' + data.status;
+        }
+        longPoll(); // Re-initiate long polling
+      })
+      .catch(err => {
+        console.error('Error during long polling:', err);
+        setTimeout(longPoll, 2000); // Retry after 2 seconds on error
+      });
+  }
+
+  function updateStatus(newStatus) {
+    fetch('http://localhost:3000/update-status/' + encodeURIComponent(newStatus))
+      .then(response => response.json())
+      .then(data => {
+        console.log('Status updated to:', data.updatedTo);
+      })
+      .catch(err => {
+        console.error('Error updating status:', err);
+      });
+  }
+
+  longPoll();
+</script>
+</body>
+</html>
